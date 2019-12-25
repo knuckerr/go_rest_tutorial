@@ -20,7 +20,7 @@ func (server *Server) GetUsers(c *gin.Context) {
 
 func (server *Server) CreateUser(c *gin.Context) {
 	user := models.User{}
-	err := c.BindJSON(&user)
+	err := c.ShouldBindJSON(&user)
 	if err != nil {
 		responses.ERROR(c, http.StatusInternalServerError, err)
 		return
@@ -60,7 +60,7 @@ func (server *Server) GetUser(c *gin.Context) {
 func (server *Server) UpdateUser(c *gin.Context) {
 	user := models.User{}
 	user_id := c.Params.ByName("id")
-	err := c.BindJSON(&user)
+	err := c.ShouldBindJSON(&user)
 	if err != nil {
 		responses.ERROR(c, http.StatusInternalServerError, err)
 		return
