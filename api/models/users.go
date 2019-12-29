@@ -15,8 +15,30 @@ type User struct {
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
+type LoginUser struct {
+	Email    string `json:"email"  binding:"required"`
+	Password string `json:"password"  binding:"required"`
+}
+
 func Hash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+}
+
+func VerifyPass(password, hashedPassword string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+}
+
+func (u *LoginUser) Login(db *gorm.DB) (*User, error) {
+	var user = &User{}
+	err := db.Where("email = ?", u.Email).Find(&user).Error
+	if err != nil {
+		return &User{}, err
+	}
+	err = VerifyPass(u.Password, user.Password)
+	if err != nil {
+		return &User{}, err
+	}
+	return user, nil
 }
 
 func (u *User) SaveUser(db *gorm.DB) (*User, error) {
