@@ -29,7 +29,6 @@ func (server *Server) Initialize() {
 	var db_name = viper.GetString("storage.database")
 
 	DBURL := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s", db_host, db_port, db_user, db_name, db_pass)
-	fmt.Println(DBURL)
 	server.DB, err = gorm.Open(Dbdriver, DBURL)
 	if err != nil {
 		fmt.Printf("Cannot connect to %s database", Dbdriver)

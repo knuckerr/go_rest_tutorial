@@ -15,4 +15,7 @@ func default_init() {
 	viper.SetDefault("storage.database", "apidb")
 	viper.SetDefault("storage.username", "postgres")
 	viper.SetDefault("storage.password", "1234")
+
+	// Secret Key
+	viper.SetDefault("SECRET_KEY", "asjdlasjldasjj21lj1233213@*&@(*&(@))")
 }
