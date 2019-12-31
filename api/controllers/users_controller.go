@@ -69,6 +69,11 @@ func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
+	err = validators.New(user)
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
 	user_id := r.URL.Query().Get("id")
 	update_user, err := user.UpdateUser(server.DB, user_id)
 	if err != nil {
