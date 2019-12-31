@@ -4,17 +4,19 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gin-gonic/gin"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/knuckerr/go_rest/api/conf"
 	"github.com/knuckerr/go_rest/api/models"
 	"github.com/spf13/viper"
+	"net/http"
 )
 
 type Server struct {
 	DB     *gorm.DB
-	Router *gin.Engine
+	Router *chi.Mux
 }
 
 const Dbdriver = "postgres"
@@ -37,12 +39,16 @@ func (server *Server) Initialize() {
 		log.Printf("We are connected to the %s database\n", Dbdriver)
 	}
 	server.DB.AutoMigrate(models.User{})
-	server.Router = gin.Default()
+	server.Router = chi.NewRouter()
+	server.Router.Use(middleware.RequestID)
+	server.Router.Use(middleware.RealIP)
+	server.Router.Use(middleware.Logger)
+	server.Router.Use(middleware.Recoverer)
 	server.InitializeRoutes()
 }
 
 func (server *Server) Run() {
 	server.Initialize()
 	log.Printf("Starting the server %s on port %s: ", viper.GetString("server.host"), viper.GetString("server.port"))
-	server.Router.Run()
+	http.ListenAndServe(":3000", server.Router)
 }

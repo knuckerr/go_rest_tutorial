@@ -11,14 +11,16 @@ import (
 type Claims struct {
 	Username string `json:"username"`
 	ID       uint32 `json:"id"`
+	Role     string `json:"role"`
 	jwt.StandardClaims
 }
 
 func Createtoken(u *models.User) (string, error) {
-	t := time.Now().Add(40 * time.Minute)
+	t := time.Now().Add(30 * time.Minute)
 	claims := &Claims{
 		Username: u.Nickname,
 		ID:       u.ID,
+		Role:     u.Role,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: t.Unix(),

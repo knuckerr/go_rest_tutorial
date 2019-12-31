@@ -8,16 +8,17 @@ import (
 
 type User struct {
 	ID        uint32    `gorm:"primary_key;auto_increment" json:"id"`
-	Nickname  string    `gorm:"size:255;not null;unique" json:"nickname"  binding:"required"`
-	Email     string    `gorm:"size:100;not null;unique" json:"email"  binding:"required"`
-	Password  string    `gorm:"size:100;not null;" json:"password"  binding:"required"`
+	Nickname  string    `gorm:"size:255;not null;unique" json:"nickname" validate:"required" `
+	Email     string    `gorm:"size:100;not null;unique" json:"email" validate:"required,email"`
+	Password  string    `gorm:"size:100;not null;" json:"password" validate:"required"`
+	Role      string    `gorm:"size:100;not null;" json:"role"  validate:"required"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
 type LoginUser struct {
-	Email    string `json:"email"  binding:"required"`
-	Password string `json:"password"  binding:"required"`
+	Email    string `json:"email" `
+	Password string `json:"password" `
 }
 
 func Hash(password string) ([]byte, error) {
