@@ -18,4 +18,8 @@ func default_init() {
 
 	// Secret Key
 	viper.SetDefault("SECRET_KEY", "asjdlasjldasjj21lj1233213@*&@(*&(@))")
+	// REDIS
+	viper.SetDefault("redis.host", "127.0.0.1")
+	viper.SetDefault("redis.port", "6379")
+
 }

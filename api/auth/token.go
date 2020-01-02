@@ -11,14 +11,16 @@ import (
 type Claims struct {
 	Username string `json:"username"`
 	ID       uint32 `json:"id"`
+	Role     string `json:"role"`
 	jwt.StandardClaims
 }
 
 func Createtoken(u *models.User) (string, error) {
-	t := time.Now().Add(40 * time.Minute)
+	t := time.Now().Add(30 * time.Minute)
 	claims := &Claims{
 		Username: u.Nickname,
 		ID:       u.ID,
+		Role:     u.Role,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: t.Unix(),
@@ -52,10 +54,7 @@ func Refreshtoken(tokenstring string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) > 30*time.Second {
-		return "", errors.New("token must be older than 30 sec")
-	}
-	expirationTime := time.Now().Add(40 * time.Minute)
+	expirationTime := time.Now().Add(30 * time.Minute)
 	claims.ExpiresAt = expirationTime.Unix()
 	token_new := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token_new.SignedString([]byte(viper.GetString("SECRET_KEY")))

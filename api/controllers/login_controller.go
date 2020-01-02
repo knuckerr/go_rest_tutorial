@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	"encoding/json"
 	"errors"
-	"github.com/gin-gonic/gin"
 	"github.com/knuckerr/go_rest/api/auth"
 	"github.com/knuckerr/go_rest/api/models"
 	"github.com/knuckerr/go_rest/api/responses"
@@ -10,35 +10,35 @@ import (
 	"strings"
 )
 
-func (server *Server) Login(c *gin.Context) {
+func (server *Server) Login(w http.ResponseWriter, r *http.Request) {
 	login_user := models.LoginUser{}
-	err := c.BindJSON(&login_user)
+	err := json.NewDecoder(r.Body).Decode(&login_user)
 	if err != nil {
-		responses.ERROR(c, http.StatusInternalServerError, err)
+		responses.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
 	db_user, err := login_user.Login(server.DB)
 	if err != nil {
-		responses.ERROR(c, http.StatusInternalServerError, errors.New("invaild crendetials"))
+		responses.ERROR(w, http.StatusInternalServerError, errors.New("invaild crendetials"))
 		return
 	}
 	token, err := auth.Createtoken(db_user)
 	if err != nil {
-		responses.ERROR(c, http.StatusInternalServerError, err)
+		responses.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
-	responses.JSON(c, http.StatusOK, gin.H{"token": token})
+	responses.JSON(w, http.StatusOK, map[string]string{"token": token})
 
 }
 
-func (Server *Server) RefreshToken(c *gin.Context) {
-	reqToken := c.Request.Header.Get("Authorization")
+func (Server *Server) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	reqToken := r.Header.Get("Authorization")
 	splitToken := strings.Split(reqToken, "Bearer")
 	reqToken = strings.TrimSpace(splitToken[1])
 	new_token, err := auth.Refreshtoken(reqToken)
 	if err != nil {
-		responses.ERROR(c, http.StatusInternalServerError, err)
+		responses.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
-	responses.JSON(c, http.StatusOK, gin.H{"token": new_token})
+	responses.JSON(w, http.StatusOK, map[string]string{"token": new_token})
 }
