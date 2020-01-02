@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"github.com/go-chi/chi"
 	"github.com/knuckerr/go_rest/api/models"
 	"github.com/knuckerr/go_rest/api/responses"
 	"github.com/knuckerr/go_rest/api/validators"
@@ -41,7 +42,7 @@ func (server *Server) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 func (server *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	user := models.User{}
-	user_id := r.URL.Query().Get("id")
+	user_id := chi.URLParam(r, "id")
 	err := user.DeleteUser(server.DB, user_id)
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)
@@ -52,7 +53,7 @@ func (server *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 func (server *Server) GetUser(w http.ResponseWriter, r *http.Request) {
 	user := models.User{}
-	user_id := r.URL.Query().Get("id")
+	user_id := chi.URLParam(r, "id")
 	find_user, err := user.FindUser(server.DB, user_id)
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)
@@ -74,7 +75,7 @@ func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
-	user_id := r.URL.Query().Get("id")
+	user_id := chi.URLParam(r, "id")
 	update_user, err := user.UpdateUser(server.DB, user_id)
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)

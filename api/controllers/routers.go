@@ -13,6 +13,7 @@ func (server *Server) InitializeRoutes() {
 			r.Post("/", server.CreateUser)
 			r.Route("/{id}", func(r chi.Router) {
 				r.Use(middlewares.AuthenticationRequired)
+				r.Use(middlewares.OwnerId)
 				r.Get("/", server.GetUser)
 				r.Put("/", server.UpdateUser)
 				r.Delete("/", server.DeleteUser)
