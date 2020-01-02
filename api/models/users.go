@@ -8,16 +8,17 @@ import (
 
 type User struct {
 	ID        uint32    `gorm:"primary_key;auto_increment" json:"id"`
-	Nickname  string    `gorm:"size:255;not null;unique" json:"nickname"  binding:"required"`
-	Email     string    `gorm:"size:100;not null;unique" json:"email"  binding:"required"`
-	Password  string    `gorm:"size:100;not null;" json:"password"  binding:"required"`
+	Nickname  string    `gorm:"size:255;not null;unique" json:"nickname" validate:"required" `
+	Email     string    `gorm:"size:100;not null;unique" json:"email" validate:"required,email"`
+	Password  string    `gorm:"size:100;not null;" json:"password" validate:"required"`
+	Role      string    `gorm:"size:100;not null;" json:"role"  validate:"required"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
 type LoginUser struct {
-	Email    string `json:"email"  binding:"required"`
-	Password string `json:"password"  binding:"required"`
+	Email    string `json:"email" `
+	Password string `json:"password" `
 }
 
 func Hash(password string) ([]byte, error) {
@@ -30,7 +31,7 @@ func VerifyPass(password, hashedPassword string) error {
 
 func (u *LoginUser) Login(db *gorm.DB) (*User, error) {
 	var user = &User{}
-	err := db.Where("email = ?", u.Email).Find(&user).Error
+	err := db.Table("users").Where("email = ?", u.Email).Find(&user).Error
 	if err != nil {
 		return &User{}, err
 	}
@@ -48,7 +49,7 @@ func (u *User) SaveUser(db *gorm.DB) (*User, error) {
 		return &User{}, err
 	}
 	u.Password = string(hash_pass)
-	err = db.Create(&u).Error
+	err = db.Table("users").Create(&u).Error
 	if err != nil {
 		return &User{}, err
 	}
@@ -58,7 +59,7 @@ func (u *User) SaveUser(db *gorm.DB) (*User, error) {
 func (u *User) FindAllUsers(db *gorm.DB) (*[]User, error) {
 	var err error
 	users := []User{}
-	err = db.Find(&users).Error
+	err = db.Table("users").Find(&users).Error
 	if err != nil {
 		return &users, err
 	}
@@ -68,7 +69,7 @@ func (u *User) FindAllUsers(db *gorm.DB) (*[]User, error) {
 func (u *User) FindUser(db *gorm.DB, id string) (*User, error) {
 	var err error
 	user := &User{}
-	err = db.Where("id = ?", id).Find(&user).Error
+	err = db.Table("users").Where("id = ?", id).Find(&user).Error
 	if err != nil {
 		return user, err
 	}
@@ -77,7 +78,7 @@ func (u *User) FindUser(db *gorm.DB, id string) (*User, error) {
 
 func (u *User) DeleteUser(db *gorm.DB, id string) error {
 	var err error
-	err = db.Where("id = ?", id).Delete(User{}).Error
+	err = db.Table("users").Where("id = ?", id).Delete(User{}).Error
 	if err != nil {
 		return err
 	}
@@ -90,7 +91,7 @@ func (u *User) UpdateUser(db *gorm.DB, id string) (*User, error) {
 		return &User{}, err
 	}
 	u.Password = string(hash_pass)
-	err = db.Model(&User{}).Where("id = ?", id).Updates(map[string]interface{}{
+	err = db.Model(&User{}).Table("users").Where("id = ?", id).Updates(map[string]interface{}{
 
 		"password":  u.Password,
 		"nickname":  u.Nickname,
@@ -100,7 +101,7 @@ func (u *User) UpdateUser(db *gorm.DB, id string) (*User, error) {
 	if err != nil {
 		return &User{}, err
 	}
-	err = db.Model(&User{}).Where("id = ?", id).Take(&u).Error
+	err = db.Model(&User{}).Table("users").Where("id = ?", id).Take(&u).Error
 	if err != nil {
 		return &User{}, err
 	}
