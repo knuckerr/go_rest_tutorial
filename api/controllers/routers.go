@@ -9,7 +9,7 @@ func (server *Server) InitializeRoutes() {
 	// PUBLIC SERVICES
 	server.Router.Route("/v1", func(r chi.Router) {
 		r.Route("/users", func(r chi.Router) {
-			r.With(middlewares.AuthenticationRequired).Get("/", server.GetUsers)
+			r.With(middlewares.AuthenticationRequired, middlewares.AdminRequired).Get("/", server.GetUsers)
 			r.Post("/", server.CreateUser)
 			r.Route("/{id}", func(r chi.Router) {
 				r.Use(middlewares.AuthenticationRequired)

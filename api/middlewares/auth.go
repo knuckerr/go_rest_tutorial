@@ -51,3 +51,24 @@ func OwnerId(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+func AdminRequired(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		data := r.Context().Value("claim")
+		if data == nil {
+			responses.JSON(w, http.StatusUnauthorized, map[string]string{"error": "need to be authorized first"})
+			return
+		}
+		claim, ok := data.(*auth.Claims)
+		if !ok {
+			responses.JSON(w, http.StatusUnauthorized, map[string]string{"error": "context need to be claim struct"})
+			return
+		}
+		if claim.Role != "admin" {
+			responses.JSON(w, http.StatusUnauthorized, map[string]string{"error": "you need to be admin to access this service"})
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+
+}
