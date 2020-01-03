@@ -6,17 +6,20 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	//"github.com/go-redis/redis/v7"
-	"github.com/jinzhu/gorm"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/jmoiron/sqlx"
 	"github.com/knuckerr/go_rest/api/conf"
-	"github.com/knuckerr/go_rest/api/models"
+	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 	"log"
 	"net/http"
 )
 
 type Server struct {
-	DB     *gorm.DB
+	DB     *sqlx.DB
 	Router *chi.Mux
 	//Cache  *redis.Client
 }
@@ -33,7 +36,7 @@ func (server *Server) Initialize() {
 	var db_name = viper.GetString("storage.database")
 
 	DBURL := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s", db_host, db_port, db_user, db_name, db_pass)
-	server.DB, err = gorm.Open(Dbdriver, DBURL)
+	server.DB, err = sqlx.Open(Dbdriver, DBURL)
 	if err != nil {
 		fmt.Printf("Cannot connect to %s database", Dbdriver)
 		log.Fatal("error:", err)
@@ -53,7 +56,16 @@ func (server *Server) Initialize() {
 		}
 		server.Cache = client
 	*/
-	server.DB.AutoMigrate(models.User{})
+	driver, err := postgres.WithInstance(server.DB.DB, &postgres.Config{})
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://api/migrations",
+		"postgres", driver)
+	err = m.Up()
+	if err != nil {
+		if err.Error() != "no change" {
+			log.Fatal(err)
+		}
+	}
 	server.Router = chi.NewRouter()
 	server.Router.Use(middleware.RequestID)
 	server.Router.Use(middleware.RealIP)
