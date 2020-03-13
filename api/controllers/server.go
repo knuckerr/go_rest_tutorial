@@ -53,7 +53,7 @@ func (server *Server) Initialize() {
 		}
 		server.Cache = client
 	*/
-	server.DB.AutoMigrate(models.User{})
+	server.DB.AutoMigrate(models.User{}, models.Contract{})
 	server.Router = chi.NewRouter()
 	server.Router.Use(middleware.RequestID)
 	server.Router.Use(middleware.RealIP)
