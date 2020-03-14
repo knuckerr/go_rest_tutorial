@@ -19,6 +19,10 @@ func (server *Server) InitializeRoutes() {
 				r.Delete("/", server.DeleteUser)
 			})
 		})
+		r.Route("/contracts", func(r chi.Router) {
+			r.Get("/", server.GetContracts)
+			r.Post("/", server.CreateContract)
+		})
 
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/login", server.Login)
