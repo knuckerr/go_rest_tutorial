@@ -20,6 +20,7 @@ func (server *Server) InitializeRoutes() {
 			})
 		})
 		r.Route("/contracts", func(r chi.Router) {
+			r.Use(middlewares.AuthenticationRequired)
 			r.Get("/", server.GetContracts)
 			r.Post("/", server.CreateContract)
 		})
