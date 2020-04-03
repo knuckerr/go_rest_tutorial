@@ -65,7 +65,7 @@ func (server *Server) Initialize() {
 func (server *Server) Run() {
 	server.Initialize()
 	log.Printf("Starting the server %s on port %s: ", viper.GetString("server.host"), viper.GetString("server.port"))
-	http.ListenAndServe(":3000", server.Router)
+	http.ListenAndServe(":9000", server.Router)
 }
 
 /*

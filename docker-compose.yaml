@@ -1,5 +1,19 @@
 version: '3.1'
 services:
+    app:
+        image: go_rest
+        build:
+            context: .
+            dockerfile: Dockerfile
+        environment:
+           DATABASE_HOST: dbPostgres
+        depends_on:
+            - dbPostgres
+        volumes:
+            - .:/api
+        ports:
+            - '9000:9000'
+
     adminer:
         image:
             dockette/adminer:full
