@@ -2,14 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import App from './compoments/auth/login';
+import Login from './compoments/auth/Login';
+import UserStore from './contexts/UserContext';
 import * as serviceWorker from './serviceWorker';
 import {
   Route,
   NavLink,
   BrowserRouter as Router,
   Switch,
-} from 'react-router-dom'
+} from 'react-router-dom';
 
 const routing = (
   <Router>
@@ -23,11 +24,13 @@ const routing = (
       </ul>
       <hr />
       <Switch>
-        <Route exact path="/" component={App} />
+        <UserStore>
+          <Route exact path="/" component={Login} />
+        </UserStore>
       </Switch>
     </div>
   </Router>
-)
+);
 
 ReactDOM.render(routing, document.getElementById('root'));
 
