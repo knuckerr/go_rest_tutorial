@@ -23,8 +23,6 @@ services:
     dbPostgres:
         image: postgres:12
         restart: always
-        ports:
-            - "5432:5432"
         environment:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: 1234
@@ -35,8 +33,6 @@ services:
     redis:
         container_name: "redis"
         image: redis
-        ports:
-          - "6379:6379"
         volumes:
           - redis:/data
         entrypoint: redis-server --appendonly yes
